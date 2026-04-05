@@ -87,7 +87,12 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
       const res = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, apiKey: settings.image_api_key }),
+        body: JSON.stringify({ 
+          prompt, 
+          apiKey: settings.image_api_key,
+          model: settings.image_model,
+          customModelName: settings.custom_image_model_name,
+        }),
       });
       
       const data = await res.json();

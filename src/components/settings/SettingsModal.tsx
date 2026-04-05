@@ -226,9 +226,61 @@ export default function SettingsModal() {
 
         {/* Image Generation API Key */}
         <div className="mb-5 border-t pt-5" style={{ borderColor: 'var(--border)' }}>
-          <label className="text-sm font-medium mb-2 block flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+          <label className="text-sm font-medium mb-3 block flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
             {t('settings.image_generation')}
           </label>
+          
+          <div className="mb-4">
+            <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
+              {t('settings.image_model')}
+            </label>
+            <div className="flex flex-col gap-1.5">
+              {[
+                { id: 'imagen-3.0-generate-002', label: 'Imagen 3 (002)' },
+                { id: 'imagen-3.0-generate-001', label: 'Imagen 3 (001)' }
+              ].map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => updateSettings({ image_model: m.id })}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium text-left transition-all border ${
+                    settings.image_model === m.id
+                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-300'
+                      : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  }`}
+                  style={settings.image_model !== m.id ? { background: 'var(--bg)' } : undefined}
+                >
+                  {m.label}
+                </button>
+              ))}
+              <button
+                onClick={() => updateSettings({ image_model: 'custom' })}
+                className={`px-3 py-2 rounded-lg text-xs font-medium text-left transition-all border ${
+                  settings.image_model === 'custom'
+                    ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-300'
+                    : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                }`}
+                style={settings.image_model !== 'custom' ? { background: 'var(--bg)' } : undefined}
+              >
+                {t('settings.ai_model_custom')}
+              </button>
+            </div>
+
+            {settings.image_model === 'custom' && (
+              <div className="mt-2 p-2 rounded-lg border animate-fade-in" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
+                <label className="text-[10px] font-medium mb-1 block" style={{ color: 'var(--text-secondary)' }}>
+                  {t('settings.custom_model_name')}
+                </label>
+                <input
+                  type="text"
+                  value={settings.custom_image_model_name || ''}
+                  onChange={(e) => updateSettings({ custom_image_model_name: e.target.value })}
+                  placeholder="imagen-3.0-generate-002"
+                  className="w-full px-2.5 py-1.5 rounded text-xs border focus:outline-none focus:ring-1 focus:ring-brand-500/30"
+                  style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                />
+              </div>
+            )}
+          </div>
           <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
             {t('settings.image_api_key')}
           </label>

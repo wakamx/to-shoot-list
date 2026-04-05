@@ -10,6 +10,8 @@ const defaultSettings: AppSettings = {
   api_key: '',
   custom_model_name: '',
   custom_provider: 'openai',
+  image_model: 'imagen-3.0-generate-002',
+  custom_image_model_name: '',
   image_api_key: '',
 };
 

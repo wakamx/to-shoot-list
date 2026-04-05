@@ -102,6 +102,7 @@
     "api_key": "APIキー",
     "api_key_placeholder": "キーを入力...",
     "image_generation": "画像生成 (絵コンテ) 設定",
+    "image_model": "モデル選択",
     "image_api_key": "Google API Key (Imagen用)",
     "save": "保存",
     "saved": "✓ 保存済み",

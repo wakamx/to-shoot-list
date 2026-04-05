@@ -102,6 +102,7 @@
     "api_key": "API Key",
     "api_key_placeholder": "Enter your key...",
     "image_generation": "Image Generation (Storyboard)",
+    "image_model": "Image Model",
     "image_api_key": "Google API Key (for Imagen)",
     "save": "Save",
     "saved": "✓ Saved",

@@ -2,14 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, apiKey } = await request.json();
+    const { prompt, apiKey, model, customModelName } = await request.json();
 
     if (!apiKey) {
       return NextResponse.json({ error: 'API key missing' }, { status: 400 });
     }
 
+    const finalModelName = model === 'custom' ? customModelName : (model || 'imagen-3.0-generate-002');
+    if (!finalModelName) {
+        return NextResponse.json({ error: 'Model name missing' }, { status: 400 });
+    }
+
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${finalModelName}:predict?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
