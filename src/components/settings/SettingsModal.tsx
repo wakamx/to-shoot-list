@@ -24,10 +24,16 @@ export default function SettingsModal() {
 
   useEffect(() => {
     if (showSettings) {
+      document.body.style.overflow = 'hidden';
       setLocalKey(settings.api_key);
       setLocalImageKey(settings.image_api_key);
       setSaved(false);
+    } else {
+      document.body.style.overflow = '';
     }
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [showSettings, settings.api_key, settings.image_api_key]);
 
   if (!showSettings) return null;
@@ -58,7 +64,7 @@ export default function SettingsModal() {
 
       {/* Bottom Sheet */}
       <div
-        className="relative w-full max-w-lg rounded-t-2xl p-6 pb-10 animate-slide-up"
+        className="relative w-full max-w-lg max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-2xl p-6 pb-10 animate-slide-up"
         style={{ background: 'var(--card)' }}
       >
         {/* Handle */}

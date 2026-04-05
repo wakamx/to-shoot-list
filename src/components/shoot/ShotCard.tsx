@@ -92,6 +92,7 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
           apiKey: settings.image_api_key,
           model: settings.image_model,
           customModelName: settings.custom_image_model_name,
+          aspectRatio: orientation,
         }),
       });
       
@@ -101,7 +102,8 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
       updateShot(shot.id, { storyboard_image_url: data.imageUrl });
     } catch (err) {
       console.error(err);
-      alert(t('errors.generation_failed'));
+      const msg = err instanceof Error ? err.message : String(err);
+      alert(`${t('errors.generation_failed')}\n${msg}`);
     } finally {
       setIsGeneratingImage(false);
     }

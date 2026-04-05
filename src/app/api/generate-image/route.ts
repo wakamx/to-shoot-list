@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, apiKey, model, customModelName } = await request.json();
+    const { prompt, apiKey, model, customModelName, aspectRatio } = await request.json();
 
     if (!apiKey) {
       return NextResponse.json({ error: 'API key missing' }, { status: 400 });
@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
           ],
           parameters: {
             sampleCount: 1,
+            aspectRatio: aspectRatio || "16:9",
           }
         }),
       }
@@ -33,6 +34,7 @@ export async function POST(request: NextRequest) {
 
     if (!res.ok) {
       const err = await res.text();
+      console.error('Image generation error response:', err);
       return NextResponse.json({ error: `Image generation failed: ${err}` }, { status: res.status });
     }
 
