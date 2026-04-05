@@ -89,16 +89,29 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
       // Create a prompt from shot details
       const sceneContent = shot.scene_description || t(`shoot.subjects.${shot.subject_type_id}`);
       const shotSize = t(`shoot.shot_sizes.${shot.shot_size_id}`);
-      const cameraAction = t(`shoot.camera_actions.${shot.camera_action_id}`);
-      const frameDesc = orientation === '9:16' 
-        ? 'vertical 9:16 rectangular storyboard frame' 
-        : 'landscape 16:9 rectangular storyboard frame';
-        
-      const prompt = `(Traditional animation storyboard process draft), highly rough hand-drawn pencil sketch, minimal pen and ink outlines, focus on emotion and dynamic composition.
+      const cameraActionLabel = t(`shoot.camera_actions.${shot.camera_action_id}`);
+      const frameOrientation = orientation === '9:16' ? 'vertical 9:16' : 'landscape 16:9';
+      
+      let prompt = '';
+      if (shot.camera_action_id === 'fixed') {
+        // A. Camera is fixed
+        prompt = `(Traditional animation storyboard process draft), highly rough hand-drawn pencil sketch, soft monochrome.
+[PANEL]: Single ${frameOrientation} storyboard panel.
 [SCENE CONTENT]: ${sceneContent}
 [SHOT SIZE]: ${shotSize}
-[VISUAL STYLE]: Raw lines, messy but lively, quick expressive strokes. Minimalist cross-hatching shading. Soft monochrome. Cozyness and warm mood.
-[META INFO]: Single panel contained in a ${frameDesc}. Off-white, slightly textured paper texture, showing pencil smudges and eraser marks.`;
+[CAMERA ACTION]: ${cameraActionLabel}
+[VISUAL STYLE]: Raw production lines, messy but lively. Cozyness and warm mood.
+[META INFO]: Off-white, slightly textured paper texture, showing pencil smudges and eraser marks.`;
+      } else {
+        // B. Camera has movement
+        prompt = `(Traditional animation storyboard process draft), highly rough hand-drawn pencil sketch, soft monochrome.
+[PANEL]: A single ${frameOrientation} storyboard panel, but internally divided into a 2-frame grid (before/after) showing dynamic movement within one continuous shot. Use clear, simple arrows to indicate the flow.
+[SCENE CONTENT]: ${sceneContent}
+[SHOT SIZE]: ${shotSize}
+[CAMERA ACTION]: ${cameraActionLabel}
+[VISUAL STYLE]: Raw production lines, lively but messy strokes, minimalist shading, cozy and warm mood. Include handwritten annotations in the margins indicating the camera movement.
+[META INFO]: Off-white, slightly textured paper texture, showing pencil smudges and eraser marks.`;
+      }
       
       const res = await fetch('/api/generate-image', {
         method: 'POST',
