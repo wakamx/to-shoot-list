@@ -85,11 +85,15 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
       const sceneContent = shot.scene_description || t(`shoot.subjects.${shot.subject_type_id}`);
       const shotSize = t(`shoot.shot_sizes.${shot.shot_size_id}`);
       const cameraAction = t(`shoot.camera_actions.${shot.camera_action_id}`);
+      const frameDesc = orientation === '9:16' 
+        ? 'vertical 9:16 rectangular storyboard frame' 
+        : 'landscape 16:9 rectangular storyboard frame';
+        
       const prompt = `(Traditional animation storyboard process draft), highly rough hand-drawn pencil sketch, minimal pen and ink outlines, focus on emotion and dynamic composition.
 [SCENE CONTENT]: ${sceneContent}
 [SHOT SIZE]: ${shotSize}
 [VISUAL STYLE]: Raw lines, messy but lively, quick expressive strokes. Minimalist cross-hatching shading. Soft monochrome. Cozyness and warm mood.
-[META INFO]: Single panel contained in a rectangular storyboard frame. Include handwritten marginal notes and production numbers outside the frame like: "Cut #${shot.id.slice(0,4)}", "T: ${shot.duration_sec}s", "Camera: ${cameraAction}". Off-white, slightly textured paper texture, showing pencil smudges and eraser marks.`;
+[META INFO]: Single panel contained in a ${frameDesc}. Include handwritten marginal notes and production numbers outside the frame like: "Cut #${shot.id.slice(0,4)}", "T: ${shot.duration_sec}s", "Camera: ${cameraAction}". Off-white, slightly textured paper texture, showing pencil smudges and eraser marks.`;
       
       const res = await fetch('/api/generate-image', {
         method: 'POST',
