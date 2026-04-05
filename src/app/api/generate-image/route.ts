@@ -13,24 +13,44 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Model name missing' }, { status: 400 });
     }
 
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${finalModelName}:predict?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          instances: [
-            { prompt }
-          ],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio: aspectRatio || "16:9",
+    const isGemini = finalModelName.startsWith('gemini');
+    
+    // Choose endpoint based on model type
+    const endpoint = isGemini 
+      ? `https://generativelanguage.googleapis.com/v1beta/models/${finalModelName}:generateContent?key=${apiKey}`
+      : `https://generativelanguage.googleapis.com/v1beta/models/${finalModelName}:predict?key=${apiKey}`;
+
+    // Construct body based on model type
+    let requestBody;
+    if (isGemini) {
+      requestBody = {
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }]
           }
-        }),
-      }
-    );
+        ],
+        generationConfig: {
+          responseModalities: ["IMAGE"]
+        }
+      };
+    } else {
+      requestBody = {
+        instances: [{ prompt }],
+        parameters: {
+          sampleCount: 1,
+          aspectRatio: aspectRatio || "16:9",
+        }
+      };
+    }
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
 
     if (!res.ok) {
       const err = await res.text();
@@ -39,13 +59,25 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await res.json();
-    const base64 = data.predictions?.[0]?.bytesBase64Encoded;
+    
+    let base64;
+    let mimeType = 'image/jpeg';
+    
+    if (isGemini) {
+      const inlineData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+      base64 = inlineData?.data;
+      if (inlineData?.mimeType) {
+        mimeType = inlineData.mimeType;
+      }
+    } else {
+      base64 = data.predictions?.[0]?.bytesBase64Encoded;
+    }
 
     if (!base64) {
       return NextResponse.json({ error: 'No image generated' }, { status: 500 });
     }
 
-    return NextResponse.json({ imageUrl: `data:image/jpeg;base64,${base64}` });
+    return NextResponse.json({ imageUrl: `data:${mimeType};base64,${base64}` });
 
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
