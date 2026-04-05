@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Check, MoreVertical, Trash2, Pencil, Camera, Plus, ImageIcon, Loader2 } from 'lucide-react';
+import { Check, MoreVertical, Trash2, Pencil, Camera, Plus, ImageIcon, Loader2, Share } from 'lucide-react';
 import { useApp } from '@/components/AppProvider';
 import VisualGuide from '@/components/visual-guide/VisualGuide';
 import { CAMERA_ACTIONS, SHOT_SIZES, SUBJECT_TYPES } from '@/lib/constants';
@@ -19,6 +19,7 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [cameraFile, setCameraFile] = useState<File | null>(null);
 
   // Edit form state
   const [editDesc, setEditDesc] = useState(shot.scene_description);
@@ -42,34 +43,38 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
     fileInputRef.current?.click();
   };
 
-  const handleFileCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (!shot.is_completed) {
         toggleComplete(shot.id);
       }
-      try {
-        if (navigator.share && navigator.canShare?.({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: 'Shot Video',
-            text: 'Save your shot to device',
-          });
-        } else {
-          // Fallback: trigger download
-          const url = URL.createObjectURL(file);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = `shot_${shot.id}.mp4`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          setTimeout(() => URL.revokeObjectURL(url), 1000);
-        }
-      } catch (err) {
-        console.error('Error sharing/saving file:', err);
+      setCameraFile(file);
+    }
+  };
+
+  const handleShareVideo = async (file: File) => {
+    try {
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'Shot Video',
+          text: 'Save your shot to device',
+        });
+      } else {
+        // Fallback: trigger download
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `shot_${shot.id}.mp4`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
+    } catch (err) {
+      console.error('Error sharing/saving file:', err);
     }
   };
 
@@ -335,13 +340,25 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
           {t('shoot.duration_label', { sec: shot.duration_sec })}
         </span>
 
-        <button
-          onClick={handleCameraOpen}
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all shadow-sm"
-        >
-          <Camera size={16} />
-          {t('shoot.open_camera')}
-        </button>
+        <div className="flex items-center gap-2">
+          {cameraFile && (
+            <button
+              onClick={() => handleShareVideo(cameraFile)}
+              className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 transition-all shadow-sm"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              <Share size={16} />
+              {t('shoot.share_video')}
+            </button>
+          )}
+          <button
+            onClick={handleCameraOpen}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all shadow-sm"
+          >
+            <Camera size={16} />
+            {cameraFile ? t('shoot.retake') : t('shoot.open_camera')}
+          </button>
+        </div>
 
         {/* Hidden file input for camera */}
         <input

@@ -65,6 +65,8 @@
     "generate_storyboard": "絵コンテ生成",
     "scene_description": "シーン説明",
     "save": "保存",
+    "share_video": "動画を保存・共有",
+    "retake": "撮り直し",
     "cancel": "キャンセル",
     "back_to_input": "入力に戻る",
     "subject": "被写体",

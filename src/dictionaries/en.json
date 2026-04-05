@@ -65,6 +65,8 @@
     "generate_storyboard": "Generate Storyboard",
     "scene_description": "Scene description",
     "save": "Save",
+    "share_video": "Save / Share",
+    "retake": "Retake",
     "cancel": "Cancel",
     "back_to_input": "Back to input",
     "subject": "Subject",
