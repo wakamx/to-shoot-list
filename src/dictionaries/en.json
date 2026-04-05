@@ -1,0 +1,113 @@
+{
+  "app": {
+    "title": "To Shoot List",
+    "description": "AI-powered shot list generator for Vlog creators"
+  },
+  "input": {
+    "heading": "Create Shooting Plan",
+    "orientation": "Orientation",
+    "vertical": "Vertical",
+    "horizontal": "Horizontal",
+    "duration": "Total Length",
+    "duration_sec": "{{sec}}s",
+    "category": "Category",
+    "categories": {
+      "travel": "Travel",
+      "cafe": "Cafe",
+      "daily": "Daily",
+      "event": "Event",
+      "food": "Food",
+      "nature": "Nature",
+      "city": "City",
+      "shopping": "Shop"
+    },
+    "companion": "With?",
+    "companions": {
+      "solo": "Solo",
+      "friend": "Friend",
+      "partner": "Partner",
+      "family": "Family"
+    },
+    "tone": "Tone",
+    "tones": {
+      "cinematic": "Cinematic",
+      "pop": "Upbeat",
+      "chill": "Chill"
+    },
+    "memo": "Notes (optional)",
+    "memo_placeholder": "Things to shoot, plans...",
+    "generate": "Generate Shot List ✨"
+  },
+  "loading": {
+    "generating": "Generating shot list...",
+    "tip_prefix": "💡 Tips"
+  },
+  "tips": {
+    "tip_rule_of_thirds": "Use the rule of thirds: place subjects at grid intersections",
+    "tip_stabilize": "Hold your phone steady to avoid camera shake",
+    "tip_golden_hour": "Golden hour light makes everything look cinematic",
+    "tip_ambient_sound": "Capture 3 seconds of ambient sound for atmosphere",
+    "tip_short_cuts": "Keep cuts between 2-5 seconds for great pacing",
+    "tip_variety": "Mix wide, medium, and close-up shots for variety",
+    "tip_music": "Choose BGM first — it helps set your cut rhythm",
+    "tip_battery": "Check battery and storage before shooting"
+  },
+  "shoot": {
+    "progress": "{{done}} / {{total}}s",
+    "regenerate": "Regenerate",
+    "complete": "Done!",
+    "duration_label": "{{sec}}s",
+    "open_camera": "📷 Camera",
+    "add_shot": "Add shot",
+    "delete": "Delete",
+    "edit": "Edit",
+    "edit_shot": "Edit Shot",
+    "scene_description": "Scene description",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back_to_input": "Back to input",
+    "subject": "Subject",
+    "shot_size": "Size",
+    "camera_action": "Camera Move",
+    "subjects": {
+      "person": "Person",
+      "landscape": "Landscape",
+      "food": "Food",
+      "item": "Item"
+    },
+    "shot_sizes": {
+      "wide": "Wide",
+      "bust": "Bust",
+      "close_up": "Close-up"
+    },
+    "camera_actions": {
+      "fixed": "Fixed",
+      "pan_left": "Pan L",
+      "pan_right": "Pan R",
+      "tilt_up": "Tilt Up",
+      "tilt_down": "Tilt Down",
+      "zoom_in": "Zoom In",
+      "orbit": "Orbit",
+      "dolly_side": "Dolly"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "ai_model": "AI Model",
+    "api_key": "API Key",
+    "api_key_placeholder": "Enter your key...",
+    "save": "Save",
+    "saved": "✓ Saved",
+    "security_note": "🔒 Key is stored locally on your device only",
+    "language": "Language",
+    "theme": "Theme",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_system": "Auto"
+  },
+  "errors": {
+    "no_api_key": "Please set your API key first",
+    "generation_failed": "Generation failed. Please try again",
+    "invalid_response": "Could not parse AI response"
+  }
+}

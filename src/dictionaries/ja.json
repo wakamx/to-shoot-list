@@ -1,0 +1,113 @@
+{
+  "app": {
+    "title": "To Shoot List",
+    "description": "AIがVlogのカット割りを提案する撮影アシスト"
+  },
+  "input": {
+    "heading": "撮影プランを作成",
+    "orientation": "動画の向き",
+    "vertical": "縦動画",
+    "horizontal": "横動画",
+    "duration": "全体の長さ",
+    "duration_sec": "{{sec}}秒",
+    "category": "カテゴリー",
+    "categories": {
+      "travel": "旅行",
+      "cafe": "カフェ",
+      "daily": "日常",
+      "event": "イベント",
+      "food": "グルメ",
+      "nature": "自然",
+      "city": "街歩き",
+      "shopping": "買い物"
+    },
+    "companion": "誰と？",
+    "companions": {
+      "solo": "1人",
+      "friend": "友達",
+      "partner": "恋人",
+      "family": "家族"
+    },
+    "tone": "トーン",
+    "tones": {
+      "cinematic": "エモい",
+      "pop": "ポップ",
+      "chill": "チル"
+    },
+    "memo": "メモ（任意）",
+    "memo_placeholder": "撮りたいものや予定を書く...",
+    "generate": "構成を自動生成 ✨"
+  },
+  "loading": {
+    "generating": "カット割りを生成中...",
+    "tip_prefix": "💡 Tips"
+  },
+  "tips": {
+    "tip_rule_of_thirds": "三分割法：被写体を画面の交点に配置しよう",
+    "tip_stabilize": "スマホをしっかり持って手ブレを防ごう",
+    "tip_golden_hour": "夕方のゴールデンアワーは最高の光",
+    "tip_ambient_sound": "環境音を意識して3秒間の空気を録ろう",
+    "tip_short_cuts": "2〜5秒の短いカットがテンポの秘訣",
+    "tip_variety": "引き・寄り・アップを混ぜて変化をつけよう",
+    "tip_music": "BGMを先に決めるとカットのリズムが合う",
+    "tip_battery": "撮影前にバッテリーとストレージをチェック"
+  },
+  "shoot": {
+    "progress": "{{done}} / {{total}}秒",
+    "regenerate": "再生成",
+    "complete": "完了！",
+    "duration_label": "{{sec}}秒",
+    "open_camera": "📷 カメラ",
+    "add_shot": "カットを追加",
+    "delete": "削除",
+    "edit": "編集",
+    "edit_shot": "カットを編集",
+    "scene_description": "シーン説明",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "back_to_input": "入力に戻る",
+    "subject": "被写体",
+    "shot_size": "サイズ",
+    "camera_action": "カメラワーク",
+    "subjects": {
+      "person": "人物",
+      "landscape": "風景",
+      "food": "フード",
+      "item": "小物"
+    },
+    "shot_sizes": {
+      "wide": "ワイド",
+      "bust": "バスト",
+      "close_up": "クローズアップ"
+    },
+    "camera_actions": {
+      "fixed": "固定",
+      "pan_left": "パン左",
+      "pan_right": "パン右",
+      "tilt_up": "ティルト上",
+      "tilt_down": "ティルト下",
+      "zoom_in": "ズームイン",
+      "orbit": "オービット",
+      "dolly_side": "ドリー"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "ai_model": "AIモデル",
+    "api_key": "APIキー",
+    "api_key_placeholder": "キーを入力...",
+    "save": "保存",
+    "saved": "✓ 保存済み",
+    "security_note": "🔒 キーは端末内のみに保存されます",
+    "language": "言語",
+    "theme": "テーマ",
+    "theme_light": "ライト",
+    "theme_dark": "ダーク",
+    "theme_system": "自動"
+  },
+  "errors": {
+    "no_api_key": "APIキーを設定してください",
+    "generation_failed": "生成に失敗しました。もう一度お試しください",
+    "invalid_response": "AIからの応答を解析できませんでした"
+  }
+}
