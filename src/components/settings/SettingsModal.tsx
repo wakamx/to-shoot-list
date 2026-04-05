@@ -18,20 +18,23 @@ export default function SettingsModal() {
 
   const [showKey, setShowKey] = useState(false);
   const [localKey, setLocalKey] = useState('');
+  const [localImageKey, setLocalImageKey] = useState('');
   const [saved, setSaved] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (showSettings) {
       setLocalKey(settings.api_key);
+      setLocalImageKey(settings.image_api_key);
       setSaved(false);
     }
-  }, [showSettings, settings.api_key]);
+  }, [showSettings, settings.api_key, settings.image_api_key]);
 
   if (!showSettings) return null;
 
   const handleSave = () => {
     setApiKey(localKey);
+    updateSettings({ image_api_key: localImageKey });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -219,6 +222,26 @@ export default function SettingsModal() {
             </button>
           </div>
           <p className="text-xs mt-2 opacity-60">{t('settings.security_note')}</p>
+        </div>
+
+        {/* Image Generation API Key */}
+        <div className="mb-5 border-t pt-5" style={{ borderColor: 'var(--border)' }}>
+          <label className="text-sm font-medium mb-2 block flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+            {t('settings.image_generation')}
+          </label>
+          <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
+            {t('settings.image_api_key')}
+          </label>
+          <div className="relative">
+            <input
+              type={showKey ? 'text' : 'password'}
+              value={localImageKey}
+              onChange={(e) => setLocalImageKey(e.target.value)}
+              placeholder={t('settings.api_key_placeholder')}
+              className="w-full px-3 py-2.5 pr-10 rounded-lg text-xs border focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+              style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+            />
+          </div>
         </div>
 
         {/* Save button */}

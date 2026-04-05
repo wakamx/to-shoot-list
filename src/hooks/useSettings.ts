@@ -10,6 +10,7 @@ const defaultSettings: AppSettings = {
   api_key: '',
   custom_model_name: '',
   custom_provider: 'openai',
+  image_api_key: '',
 };
 
 export function useSettings() {

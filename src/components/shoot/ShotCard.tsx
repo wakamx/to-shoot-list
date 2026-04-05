@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Check, MoreVertical, Trash2, Pencil, Camera, Plus } from 'lucide-react';
+import { Check, MoreVertical, Trash2, Pencil, Camera, Plus, ImageIcon, Loader2 } from 'lucide-react';
 import { useApp } from '@/components/AppProvider';
 import VisualGuide from '@/components/visual-guide/VisualGuide';
 import { CAMERA_ACTIONS, SHOT_SIZES, SUBJECT_TYPES } from '@/lib/constants';
@@ -13,11 +13,12 @@ interface ShotCardProps {
 }
 
 export default function ShotCard({ shot, orientation }: ShotCardProps) {
-  const { t, toggleComplete, deleteShot, updateShot } = useApp();
+  const { t, settings, setShowSettings, toggleComplete, deleteShot, updateShot } = useApp();
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   // Edit form state
   const [editDesc, setEditDesc] = useState(shot.scene_description);
@@ -41,10 +42,63 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
     fileInputRef.current?.click();
   };
 
-  const handleFileCapture = () => {
-    // Mark as completed when camera captures
-    if (!shot.is_completed) {
-      toggleComplete(shot.id);
+  const handleFileCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!shot.is_completed) {
+        toggleComplete(shot.id);
+      }
+      try {
+        if (navigator.share && navigator.canShare?.({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Shot Video',
+            text: 'Save your shot to device',
+          });
+        } else {
+          // Fallback: trigger download
+          const url = URL.createObjectURL(file);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = `shot_${shot.id}.mp4`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+      } catch (err) {
+        console.error('Error sharing/saving file:', err);
+      }
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    if (!settings.image_api_key) {
+      setShowSettings(true);
+      return;
+    }
+    
+    setIsGeneratingImage(true);
+    try {
+      // Create a prompt from shot details
+      const prompt = `A cinematic storyboard panel from a vlog. Subject: ${t(`shoot.subjects.${shot.subject_type_id}`)}. Shot size: ${t(`shoot.shot_sizes.${shot.shot_size_id}`)}. Camera action: ${t(`shoot.camera_actions.${shot.camera_action_id}`)}. Scene description: ${shot.scene_description}. High quality, realistic, beautiful lighting.`;
+      
+      const res = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, apiKey: settings.image_api_key }),
+      });
+      
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error);
+      
+      updateShot(shot.id, { storyboard_image_url: data.imageUrl });
+    } catch (err) {
+      console.error(err);
+      alert(t('errors.generation_failed'));
+    } finally {
+      setIsGeneratingImage(false);
     }
   };
 
@@ -196,9 +250,15 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
 
           {showMenu && (
             <div
-              className="absolute right-0 top-8 z-20 min-w-[120px] rounded-xl py-1 shadow-lg animate-fade-in border"
+              className="absolute right-0 top-8 z-20 min-w-[160px] rounded-xl py-1 shadow-lg animate-fade-in border"
               style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
             >
+              <button
+                onClick={() => { handleGenerateImage(); setShowMenu(false); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+              >
+                <ImageIcon size={14} /> {t('shoot.generate_storyboard')}
+              </button>
               <button
                 onClick={() => { setEditing(true); setShowMenu(false); }}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition"
@@ -229,14 +289,26 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
         </span>
       </div>
 
-      {/* VisualGuide */}
-      <div className="px-4">
-        <VisualGuide
-          cameraAction={shot.camera_action_id}
-          subjectType={shot.subject_type_id}
-          shotSize={shot.shot_size_id}
-          orientation={orientation}
-        />
+      {/* VisualGuide or Storyboard Image */}
+      <div className="px-4 relative">
+        {isGeneratingImage ? (
+          <div className="w-full aspect-[16/9] flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+            <Loader2 size={24} className="animate-spin text-brand-500" />
+          </div>
+        ) : shot.storyboard_image_url ? (
+          <img
+            src={shot.storyboard_image_url}
+            alt="Storyboard"
+            className={`w-full rounded-xl object-cover shadow-sm ${orientation === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'}`}
+          />
+        ) : (
+          <VisualGuide
+            cameraAction={shot.camera_action_id}
+            subjectType={shot.subject_type_id}
+            shotSize={shot.shot_size_id}
+            orientation={orientation}
+          />
+        )}
       </div>
 
       {/* ShotFooter */}
