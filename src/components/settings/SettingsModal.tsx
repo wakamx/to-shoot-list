@@ -10,7 +10,7 @@ import type { Theme } from '@/hooks/useTheme';
 export default function SettingsModal() {
   const {
     showSettings, setShowSettings,
-    settings, setModel, setApiKey,
+    settings, setModel, setApiKey, updateSettings,
     theme, setTheme,
     locale, setLocale,
     t,
@@ -138,7 +138,57 @@ export default function SettingsModal() {
                 {m.label}
               </button>
             ))}
+            <button
+              onClick={() => setModel('custom')}
+              className={`px-4 py-2.5 rounded-xl text-sm font-medium text-left transition-all border ${
+                settings.ai_model === 'custom'
+                  ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-300'
+                  : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
+              }`}
+              style={settings.ai_model !== 'custom' ? { background: 'var(--bg)' } : undefined}
+            >
+              {t('settings.ai_model_custom')}
+            </button>
           </div>
+
+          {/* Custom Model Inputs */}
+          {settings.ai_model === 'custom' && (
+            <div className="mt-3 p-3 rounded-xl border space-y-3 animate-fade-in" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
+                  {t('settings.custom_provider')}
+                </label>
+                <div className="flex gap-1">
+                  {(['openai', 'google', 'anthropic'] as const).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => updateSettings({ custom_provider: p })}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        settings.custom_provider === p
+                          ? 'bg-brand-500 text-white'
+                          : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      {p === 'openai' ? 'OpenAI' : p === 'google' ? 'Google' : 'Anthropic'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
+                  {t('settings.custom_model_name')}
+                </label>
+                <input
+                  type="text"
+                  value={settings.custom_model_name || ''}
+                  onChange={(e) => updateSettings({ custom_model_name: e.target.value })}
+                  placeholder={t('settings.custom_model_placeholder')}
+                  className="w-full px-3 py-2 rounded-lg text-xs border focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                  style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* API Key */}

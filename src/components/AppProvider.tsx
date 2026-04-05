@@ -17,6 +17,7 @@ interface AppContextType {
   isConfigured: boolean;
   setModel: ReturnType<typeof useSettings>['setModel'];
   setApiKey: ReturnType<typeof useSettings>['setApiKey'];
+  updateSettings: ReturnType<typeof useSettings>['updateSettings'];
   settingsLoaded: boolean;
   // Shots
   shots: Shot[];
@@ -62,7 +63,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
-  const { settings, loaded: settingsLoaded, isConfigured, setModel, setApiKey } = useSettings();
+  const { settings, loaded: settingsLoaded, isConfigured, setModel, setApiKey, updateSettings } = useSettings();
   const { shots, setFromAI, toggleComplete, deleteShot, updateShot, addShotAfter, totalDuration, completedDuration } = useShots();
   const { theme, resolved: resolvedTheme, setTheme } = useTheme();
   const { locale, setLocale, t } = useLocale();
@@ -86,6 +87,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             form: formData,
             model: settings.ai_model,
             apiKey: settings.api_key,
+            customModelName: settings.custom_model_name,
+            customProvider: settings.custom_provider,
           }),
         });
         const data = await res.json();
@@ -109,7 +112,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider
       value={{
         screen, setScreen,
-        settings, isConfigured, setModel, setApiKey, settingsLoaded,
+        settings, isConfigured, setModel, setApiKey, updateSettings, settingsLoaded,
         shots, setFromAI, toggleComplete, deleteShot, updateShot, addShotAfter,
         totalDuration, completedDuration,
         theme, resolvedTheme, setTheme,

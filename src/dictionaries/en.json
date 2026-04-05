@@ -94,6 +94,10 @@
   "settings": {
     "title": "Settings",
     "ai_model": "AI Model",
+    "ai_model_custom": "Other (Manual Input)",
+    "custom_provider": "Provider (Required)",
+    "custom_model_name": "Model Name",
+    "custom_model_placeholder": "e.g. gpt-4-turbo",
     "api_key": "API Key",
     "api_key_placeholder": "Enter your key...",
     "save": "Save",

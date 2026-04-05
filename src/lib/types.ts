@@ -34,12 +34,15 @@ export interface InputFormData {
 }
 
 // ===== Settings Types =====
-export type AIModel = 'gpt-4o-mini' | 'gemini-2.0-flash' | 'claude-3-5-haiku-20241022';
+export type AIModel = 'gpt-4o' | 'gpt-4o-mini' | 'o1-mini' | 'gemini-2.0-flash' | 'gemini-2.0-flash-lite-preview-02-05' | 'claude-3-7-sonnet-latest' | 'claude-3-5-sonnet-latest' | 'claude-3-5-haiku-latest' | 'custom' | string;
+
 export type AIProvider = 'openai' | 'google' | 'anthropic';
 
 export interface AppSettings {
   ai_model: AIModel;
   api_key: string;
+  custom_model_name?: string;
+  custom_provider?: AIProvider;
 }
 
 // ===== Locale Types =====

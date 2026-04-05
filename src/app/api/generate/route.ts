@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildSystemPrompt, buildUserPrompt } from '@/lib/ai-client';
-import type { InputFormData, AIModel } from '@/lib/types';
+import type { InputFormData, AIModel, AIProvider } from '@/lib/types';
 import { getProviderForModel } from '@/lib/constants';
 
 interface GenerateBody {
   form: InputFormData;
   model: AIModel;
   apiKey: string;
+  customModelName?: string;
+  customProvider?: AIProvider;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: GenerateBody = await request.json();
-    const { form, model, apiKey } = body;
+    const { form, model, apiKey, customModelName, customProvider } = body;
 
     if (!apiKey) {
       return NextResponse.json({ error: 'API key missing' }, { status: 400 });
@@ -20,7 +22,14 @@ export async function POST(request: NextRequest) {
 
     const systemPrompt = buildSystemPrompt();
     const userPrompt = buildUserPrompt(form);
-    const provider = getProviderForModel(model);
+    
+    // Determine provider and model
+    const provider = getProviderForModel(model, customProvider);
+    const finalModelName = model === 'custom' ? customModelName || '' : model;
+
+    if (!finalModelName) {
+        return NextResponse.json({ error: 'Model name missing for custom model' }, { status: 400 });
+    }
 
     let resultText: string;
 
@@ -32,7 +41,7 @@ export async function POST(request: NextRequest) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model,
+          model: finalModelName,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
@@ -49,7 +58,7 @@ export async function POST(request: NextRequest) {
       resultText = data.choices[0].message.content;
     } else if (provider === 'google') {
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${finalModelName}:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -84,7 +93,7 @@ export async function POST(request: NextRequest) {
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-          model,
+          model: finalModelName,
           max_tokens: 2000,
           system: systemPrompt,
           messages: [{ role: 'user', content: userPrompt }],

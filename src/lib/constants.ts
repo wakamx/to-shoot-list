@@ -65,12 +65,21 @@ export const CAMERA_ACTIONS: Record<CameraAction, { icon: string }> = {
 
 // ===== AI Models =====
 export const AI_MODELS: { id: AIModel; provider: AIProvider; label: string }[] = [
+  // OpenAI
+  { id: 'gpt-4o', provider: 'openai', label: 'GPT-4o' },
   { id: 'gpt-4o-mini', provider: 'openai', label: 'GPT-4o mini' },
+  { id: 'o1-mini', provider: 'openai', label: 'o1-mini' },
+  // Google
   { id: 'gemini-2.0-flash', provider: 'google', label: 'Gemini 2.0 Flash' },
-  { id: 'claude-3-5-haiku-20241022', provider: 'anthropic', label: 'Claude 3.5 Haiku' },
+  { id: 'gemini-2.0-flash-lite-preview-02-05', provider: 'google', label: 'Gemini 2.0 Flash Lite' },
+  // Anthropic
+  { id: 'claude-3-7-sonnet-latest', provider: 'anthropic', label: 'Claude 3.7 Sonnet' },
+  { id: 'claude-3-5-sonnet-latest', provider: 'anthropic', label: 'Claude 3.5 Sonnet' },
+  { id: 'claude-3-5-haiku-latest', provider: 'anthropic', label: 'Claude 3.5 Haiku' },
 ];
 
-export function getProviderForModel(model: AIModel): AIProvider {
+export function getProviderForModel(model: AIModel, customProvider?: AIProvider): AIProvider {
+  if (model === 'custom' && customProvider) return customProvider;
   const found = AI_MODELS.find((m) => m.id === model);
   return found?.provider ?? 'openai';
 }

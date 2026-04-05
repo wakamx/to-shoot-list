@@ -8,6 +8,8 @@ const STORAGE_KEY = 'app_settings';
 const defaultSettings: AppSettings = {
   ai_model: 'gpt-4o-mini',
   api_key: '',
+  custom_model_name: '',
+  custom_provider: 'openai',
 };
 
 export function useSettings() {

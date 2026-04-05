@@ -94,6 +94,10 @@
   "settings": {
     "title": "設定",
     "ai_model": "AIモデル",
+    "ai_model_custom": "その他 (手動入力)",
+    "custom_provider": "プロバイダー (必須)",
+    "custom_model_name": "モデル名",
+    "custom_model_placeholder": "例: gpt-4-turbo",
     "api_key": "APIキー",
     "api_key_placeholder": "キーを入力...",
     "save": "保存",
