@@ -379,7 +379,7 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
           type="file"
           accept="video/*"
           capture="environment"
-          className="hidden"
+          className="absolute w-0 h-0 opacity-0 pointer-events-none"
           onChange={handleFileCapture}
         />
       </div>
