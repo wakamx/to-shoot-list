@@ -93,7 +93,7 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
 [SCENE CONTENT]: ${sceneContent}
 [SHOT SIZE]: ${shotSize}
 [VISUAL STYLE]: Raw lines, messy but lively, quick expressive strokes. Minimalist cross-hatching shading. Soft monochrome. Cozyness and warm mood.
-[META INFO]: Single panel contained in a ${frameDesc}. Include handwritten marginal notes and production numbers outside the frame like: "Cut #${shot.id.slice(0,4)}", "T: ${shot.duration_sec}s", "Camera: ${cameraAction}". Off-white, slightly textured paper texture, showing pencil smudges and eraser marks.`;
+[META INFO]: Single panel contained in a ${frameDesc}. Off-white, slightly textured paper texture, showing pencil smudges and eraser marks.`;
       
       const res = await fetch('/api/generate-image', {
         method: 'POST',
