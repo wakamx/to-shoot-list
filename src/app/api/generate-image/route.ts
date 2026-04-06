@@ -2,8 +2,61 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, apiKey, model, customModelName, aspectRatio } = await request.json();
+    const { 
+      prompt, 
+      apiKey, 
+      model, 
+      customModelName, 
+      aspectRatio,
+      imageProvider,
+      falApiKey,
+      falModel 
+    } = await request.json();
 
+    const provider = imageProvider || 'google';
+
+    if (provider === 'fal') {
+      if (!falApiKey) {
+        return NextResponse.json({ error: 'Fal.ai API key missing' }, { status: 400 });
+      }
+
+      // Map aspect ratio
+      const imageSize = aspectRatio === '9:16' ? 'portrait_9_16' : 'landscape_16_9';
+
+      const res = await fetch(`https://fal.run/${falModel || 'fal-ai/flux/dev'}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Key ${falApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt,
+          image_size: imageSize,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        return NextResponse.json({ error: `Fal.ai API Error: ${err}` }, { status: res.status });
+      }
+
+      const data = await res.json();
+      const imageUrl = data.images?.[0]?.url;
+
+      if (!imageUrl) {
+        return NextResponse.json({ error: 'No image URL returned from Fal.ai' }, { status: 500 });
+      }
+
+      // Fetch the image and convert to Base64
+      const imageRes = await fetch(imageUrl);
+      const buffer = await imageRes.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString('base64');
+      const contentType = imageRes.headers.get('content-type') || 'image/jpeg';
+
+      return NextResponse.json({ imageUrl: `data:${contentType};base64,${base64}` });
+    }
+
+    // --- Google Logic ---
     if (!apiKey) {
       return NextResponse.json({ error: 'API key missing' }, { status: 400 });
     }
@@ -14,61 +67,42 @@ export async function POST(request: NextRequest) {
     }
 
     const isGemini = finalModelName.startsWith('gemini');
-    
-    // Choose endpoint based on model type
     const endpoint = isGemini 
       ? `https://generativelanguage.googleapis.com/v1beta/models/${finalModelName}:generateContent?key=${apiKey}`
       : `https://generativelanguage.googleapis.com/v1beta/models/${finalModelName}:predict?key=${apiKey}`;
 
-    // Construct body based on model type
     let requestBody;
     if (isGemini) {
       requestBody = {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }]
-          }
-        ],
-        generationConfig: {
-          responseModalities: ["IMAGE"]
-        }
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { responseModalities: ["IMAGE"] }
       };
     } else {
       requestBody = {
         instances: [{ prompt }],
-        parameters: {
-          sampleCount: 1,
-          aspectRatio: aspectRatio || "16:9",
-        }
+        parameters: { sampleCount: 1, aspectRatio: aspectRatio || "16:9" }
       };
     }
 
     const res = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody),
     });
 
     if (!res.ok) {
       const err = await res.text();
-      console.error('Image generation error response:', err);
       return NextResponse.json({ error: `Image generation failed: ${err}` }, { status: res.status });
     }
 
     const data = await res.json();
-    
     let base64;
     let mimeType = 'image/jpeg';
     
     if (isGemini) {
       const inlineData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
       base64 = inlineData?.data;
-      if (inlineData?.mimeType) {
-        mimeType = inlineData.mimeType;
-      }
+      if (inlineData?.mimeType) mimeType = inlineData.mimeType;
     } else {
       base64 = data.predictions?.[0]?.bytesBase64Encoded;
     }

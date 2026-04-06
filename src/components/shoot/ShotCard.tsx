@@ -122,6 +122,9 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
           model: settings.image_model,
           customModelName: settings.custom_image_model_name,
           aspectRatio: orientation,
+          imageProvider: settings.image_provider,
+          falApiKey: settings.fal_api_key,
+          falModel: settings.fal_model,
         }),
       });
       

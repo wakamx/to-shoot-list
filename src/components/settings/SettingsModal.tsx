@@ -19,6 +19,7 @@ export default function SettingsModal() {
   const [showKey, setShowKey] = useState(false);
   const [localKey, setLocalKey] = useState('');
   const [localImageKey, setLocalImageKey] = useState('');
+  const [localFalKey, setLocalFalKey] = useState('');
   const [saved, setSaved] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
 
@@ -27,6 +28,7 @@ export default function SettingsModal() {
       document.body.style.overflow = 'hidden';
       setLocalKey(settings.api_key);
       setLocalImageKey(settings.image_api_key);
+      setLocalFalKey(settings.fal_api_key || '');
       setSaved(false);
     } else {
       document.body.style.overflow = '';
@@ -40,7 +42,10 @@ export default function SettingsModal() {
 
   const handleSave = () => {
     setApiKey(localKey);
-    updateSettings({ image_api_key: localImageKey });
+    updateSettings({ 
+      image_api_key: localImageKey,
+      fal_api_key: localFalKey 
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -230,76 +235,162 @@ export default function SettingsModal() {
           <p className="text-xs mt-2 opacity-60">{t('settings.security_note')}</p>
         </div>
 
-        {/* Image Generation API Key */}
+        {/* Image Generation Settings */}
         <div className="mb-5 border-t pt-5" style={{ borderColor: 'var(--border)' }}>
           <label className="text-sm font-medium mb-3 block flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
             {t('settings.image_generation')}
           </label>
-          
+
+          {/* Provider Selection */}
           <div className="mb-4">
             <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
-              {t('settings.image_model')}
+              {t('settings.image_provider')}
             </label>
-            <div className="flex flex-col gap-1.5">
-              {[
-                { id: 'imagen-3.0-generate-002', label: 'Imagen 3 (002)' },
-                { id: 'imagen-3.0-generate-001', label: 'Imagen 3 (001)' }
-              ].map((m) => (
+            <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'var(--bg)' }}>
+              {(['google', 'fal'] as const).map((p) => (
                 <button
-                  key={m.id}
-                  onClick={() => updateSettings({ image_model: m.id })}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium text-left transition-all border ${
-                    settings.image_model === m.id
-                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-300'
-                      : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  key={p}
+                  onClick={() => updateSettings({ image_provider: p })}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    settings.image_provider === p
+                      ? 'bg-brand-500 text-white shadow-sm'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
-                  style={settings.image_model !== m.id ? { background: 'var(--bg)' } : undefined}
                 >
-                  {m.label}
+                  {p === 'google' ? 'Google' : 'Fal.ai'}
                 </button>
               ))}
-              <button
-                onClick={() => updateSettings({ image_model: 'custom' })}
-                className={`px-3 py-2 rounded-lg text-xs font-medium text-left transition-all border ${
-                  settings.image_model === 'custom'
-                    ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-300'
-                    : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                }`}
-                style={settings.image_model !== 'custom' ? { background: 'var(--bg)' } : undefined}
-              >
-                {t('settings.ai_model_custom')}
-              </button>
             </div>
+          </div>
 
-            {settings.image_model === 'custom' && (
-              <div className="mt-2 p-2 rounded-lg border animate-fade-in" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
-                <label className="text-[10px] font-medium mb-1 block" style={{ color: 'var(--text-secondary)' }}>
-                  {t('settings.custom_model_name')}
+          {settings.image_provider === 'google' ? (
+            <div className="animate-fade-in space-y-4">
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
+                  {t('settings.image_model')}
                 </label>
-                <input
-                  type="text"
-                  value={settings.custom_image_model_name || ''}
-                  onChange={(e) => updateSettings({ custom_image_model_name: e.target.value })}
-                  placeholder="imagen-3.0-generate-002"
-                  className="w-full px-2.5 py-1.5 rounded text-xs border focus:outline-none focus:ring-1 focus:ring-brand-500/30"
-                  style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-                />
+                <div className="flex flex-col gap-1.5">
+                  {[
+                    { id: 'imagen-3.0-generate-002', label: 'Imagen 3 (002)' },
+                    { id: 'imagen-3.0-generate-001', label: 'Imagen 3 (001)' }
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => updateSettings({ image_model: m.id })}
+                      className={`px-3 py-2 rounded-lg text-xs font-medium text-left transition-all border ${
+                        settings.image_model === m.id
+                          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-300'
+                          : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                      }`}
+                      style={settings.image_model !== m.id ? { background: 'var(--bg)' } : undefined}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => updateSettings({ image_model: 'custom' })}
+                    className={`px-3 py-2 rounded-lg text-xs font-medium text-left transition-all border ${
+                      settings.image_model === 'custom'
+                        ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-300'
+                        : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    }`}
+                    style={settings.image_model !== 'custom' ? { background: 'var(--bg)' } : undefined}
+                  >
+                    {t('settings.ai_model_custom')}
+                  </button>
+                </div>
+
+                {settings.image_model === 'custom' && (
+                  <div className="mt-2 p-2 rounded-lg border animate-fade-in" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
+                    <label className="text-[10px] font-medium mb-1 block" style={{ color: 'var(--text-secondary)' }}>
+                      {t('settings.custom_model_name')}
+                    </label>
+                    <input
+                      type="text"
+                      value={settings.custom_image_model_name || ''}
+                      onChange={(e) => updateSettings({ custom_image_model_name: e.target.value })}
+                      placeholder="imagen-3.0-generate-002"
+                      className="w-full px-2.5 py-1.5 rounded text-xs border focus:outline-none focus:ring-1 focus:ring-brand-500/30"
+                      style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                    />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
-            {t('settings.image_api_key')}
-          </label>
-          <div className="relative">
-            <input
-              type={showKey ? 'text' : 'password'}
-              value={localImageKey}
-              onChange={(e) => setLocalImageKey(e.target.value)}
-              placeholder={t('settings.api_key_placeholder')}
-              className="w-full px-3 py-2.5 pr-10 rounded-lg text-xs border focus:outline-none focus:ring-2 focus:ring-brand-500/30"
-              style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-            />
-          </div>
+
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
+                  {t('settings.image_api_key')}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showKey ? 'text' : 'password'}
+                    value={localImageKey}
+                    onChange={(e) => setLocalImageKey(e.target.value)}
+                    placeholder={t('settings.api_key_placeholder')}
+                    className="w-full px-3 py-2.5 pr-10 rounded-lg text-xs border focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                    style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="animate-fade-in space-y-4">
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
+                  {t('settings.fal_model')}
+                </label>
+                <div className="flex flex-col gap-1.5">
+                  {[
+                    { id: 'fal-ai/flux/dev', label: 'FLUX.1 [dev]' },
+                    { id: 'fal-ai/flux-pro/v1.1-ultra', label: 'FLUX.1.1 [pro] Ultra' },
+                    { id: 'fal-ai/recraft-v3', label: 'Recraft v3' }
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => updateSettings({ fal_model: m.id })}
+                      className={`px-3 py-2 rounded-lg text-xs font-medium text-left transition-all border ${
+                        settings.fal_model === m.id
+                          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-300'
+                          : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                      }`}
+                      style={settings.fal_model !== m.id ? { background: 'var(--bg)' } : undefined}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                  <div className="mt-2 p-2 rounded-lg border" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
+                    <label className="text-[10px] font-medium mb-1 block" style={{ color: 'var(--text-secondary)' }}>
+                      {t('settings.ai_model_custom')}
+                    </label>
+                    <input
+                      type="text"
+                      value={settings.fal_model || ''}
+                      onChange={(e) => updateSettings({ fal_model: e.target.value })}
+                      placeholder="fal-ai/flux/dev"
+                      className="w-full px-2.5 py-1.5 rounded text-xs border focus:outline-none focus:ring-1 focus:ring-brand-500/30"
+                      style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>
+                  {t('settings.fal_api_key')}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showKey ? 'text' : 'password'}
+                    value={localFalKey}
+                    onChange={(e) => setLocalFalKey(e.target.value)}
+                    placeholder={t('settings.api_key_placeholder')}
+                    className="w-full px-3 py-2.5 pr-10 rounded-lg text-xs border focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                    style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Save button */}

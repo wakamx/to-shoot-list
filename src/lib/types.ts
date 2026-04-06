@@ -44,9 +44,12 @@ export interface AppSettings {
   api_key: string;
   custom_model_name?: string;
   custom_provider?: AIProvider;
+  image_provider: 'google' | 'fal';
   image_model: string;
   custom_image_model_name?: string;
   image_api_key: string;
+  fal_api_key: string;
+  fal_model: string;
 }
 
 // ===== Locale Types =====
