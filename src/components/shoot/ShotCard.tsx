@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Check, MoreVertical, Trash2, Pencil, Camera, Plus, ImageIcon, Loader2, Share } from 'lucide-react';
+import { Check, MoreVertical, Trash2, Pencil, Camera, Plus, Share } from 'lucide-react';
 import { useApp } from '@/components/AppProvider';
-import VisualGuide from '@/components/visual-guide/VisualGuide';
+import StoryboardPanel from '@/components/storyboard/StoryboardPanel';
 import { CAMERA_ACTIONS, SHOT_SIZES, SUBJECT_TYPES } from '@/lib/constants';
 import type { Shot, CameraAction, ShotSize, SubjectType, VideoOrientation } from '@/lib/types';
 
@@ -13,12 +13,11 @@ interface ShotCardProps {
 }
 
 export default function ShotCard({ shot, orientation }: ShotCardProps) {
-  const { t, settings, setShowSettings, toggleComplete, deleteShot, updateShot } = useApp();
+  const { t, toggleComplete, deleteShot, updateShot } = useApp();
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [cameraFile, setCameraFile] = useState<File | null>(null);
 
   // Edit form state
@@ -78,68 +77,6 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
     }
   };
 
-  const handleGenerateImage = async () => {
-    if (!settings.image_api_key) {
-      setShowSettings(true);
-      return;
-    }
-    
-    setIsGeneratingImage(true);
-    try {
-      // Create a prompt from shot details
-      const sceneContent = shot.scene_description || t(`shoot.subjects.${shot.subject_type_id}`);
-      const shotSize = t(`shoot.shot_sizes.${shot.shot_size_id}`);
-      const cameraActionLabel = t(`shoot.camera_actions.${shot.camera_action_id}`);
-      const frameOrientation = orientation === '9:16' ? 'vertical 9:16' : 'landscape 16:9';
-      
-      let prompt = '';
-      if (shot.camera_action_id === 'fixed') {
-        // A. Camera is fixed
-        prompt = `(Traditional animation storyboard process draft), highly rough hand-drawn pencil sketch, soft monochrome.
-[PANEL]: Single ${frameOrientation} storyboard panel.
-[SCENE CONTENT]: ${sceneContent}
-[SHOT SIZE]: ${shotSize}
-[CAMERA ACTION]: ${cameraActionLabel}
-[VISUAL STYLE]: Raw production lines, messy but lively. Cozyness and warm mood.
-[META INFO]: Off-white, slightly textured paper texture, showing pencil smudges and eraser marks.`;
-      } else {
-        // B. Camera has movement
-        prompt = `(Traditional animation storyboard process draft), highly rough hand-drawn pencil sketch, soft monochrome.
-[PANEL]: A single ${frameOrientation} storyboard panel, but internally divided into a 2-frame grid (before/after) showing dynamic movement within one continuous shot. Use clear, simple arrows to indicate the flow.
-[SCENE CONTENT]: ${sceneContent}
-[SHOT SIZE]: ${shotSize}
-[CAMERA ACTION]: ${cameraActionLabel}
-[VISUAL STYLE]: Raw production lines, lively but messy strokes, minimalist shading, cozy and warm mood. Include handwritten annotations in the margins indicating the camera movement.
-[META INFO]: Off-white, slightly textured paper texture, showing pencil smudges and eraser marks.`;
-      }
-      
-      const res = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          prompt, 
-          apiKey: settings.image_api_key,
-          model: settings.image_model,
-          customModelName: settings.custom_image_model_name,
-          aspectRatio: orientation,
-          imageProvider: settings.image_provider,
-          falApiKey: settings.fal_api_key,
-          falModel: settings.fal_model,
-        }),
-      });
-      
-      const data = await res.json();
-      if (!res.ok || data.error) throw new Error(data.error);
-      
-      updateShot(shot.id, { storyboard_image_url: data.imageUrl });
-    } catch (err) {
-      console.error(err);
-      const msg = err instanceof Error ? err.message : String(err);
-      alert(`${t('errors.generation_failed')}\n${msg}`);
-    } finally {
-      setIsGeneratingImage(false);
-    }
-  };
 
   if (editing) {
     return (
@@ -293,12 +230,6 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
               style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
             >
               <button
-                onClick={() => { handleGenerateImage(); setShowMenu(false); }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-              >
-                <ImageIcon size={14} /> {t('shoot.generate_storyboard')}
-              </button>
-              <button
                 onClick={() => { setEditing(true); setShowMenu(false); }}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition"
               >
@@ -328,26 +259,14 @@ export default function ShotCard({ shot, orientation }: ShotCardProps) {
         </span>
       </div>
 
-      {/* VisualGuide or Storyboard Image */}
+      {/* Storyboard Panel */}
       <div className="px-4 relative">
-        {isGeneratingImage ? (
-          <div className="w-full aspect-[16/9] flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
-            <Loader2 size={24} className="animate-spin text-brand-500" />
-          </div>
-        ) : shot.storyboard_image_url ? (
-          <img
-            src={shot.storyboard_image_url}
-            alt="Storyboard"
-            className={`w-full rounded-xl object-cover shadow-sm ${orientation === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'}`}
-          />
-        ) : (
-          <VisualGuide
-            cameraAction={shot.camera_action_id}
-            subjectType={shot.subject_type_id}
-            shotSize={shot.shot_size_id}
-            orientation={orientation}
-          />
-        )}
+        <StoryboardPanel
+          cameraAction={shot.camera_action_id}
+          subjectType={shot.subject_type_id}
+          shotSize={shot.shot_size_id}
+          orientation={orientation}
+        />
       </div>
 
       {/* ShotFooter */}

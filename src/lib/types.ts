@@ -7,7 +7,6 @@ export interface Shot {
   camera_action_id: CameraAction;
   duration_sec: number;
   is_completed: boolean;
-  storyboard_image_url?: string;
 }
 
 export type SubjectType = 'person' | 'landscape' | 'food' | 'item';
@@ -44,12 +43,6 @@ export interface AppSettings {
   api_key: string;
   custom_model_name?: string;
   custom_provider?: AIProvider;
-  image_provider: 'google' | 'fal';
-  image_model: string;
-  custom_image_model_name?: string;
-  image_api_key: string;
-  fal_api_key: string;
-  fal_model: string;
 }
 
 // ===== Locale Types =====
